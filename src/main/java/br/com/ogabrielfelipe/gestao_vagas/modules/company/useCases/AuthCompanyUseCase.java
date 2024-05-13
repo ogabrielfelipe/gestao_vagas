@@ -45,7 +45,7 @@ public class AuthCompanyUseCase {
         }
 
         Algorithm algorithm = Algorithm.HMAC256(SecretKey);
-        var token = JWT.create().withIssuer("javagas")
+        var token = JWT.create().withIssuer("gestao_vagas")
             .withExpiresAt(Instant.now().plus(Duration.ofHours(2)))
             .withSubject(company.getId().toString())
             .sign(algorithm);
