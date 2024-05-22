@@ -9,24 +9,24 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 @Service
-public class JWTProvider {  
+public class JWTCandidateProvider {
     
-    @Value("${security.token.secret.company}")
-    private String SecretKey;
-    
-    
+    @Value("${security.token.secret.candidate}")
+    private String secretKey;
+
     public DecodedJWT validateToken(String token) {
         token = token.replace("Bearer ", "");
 
-        Algorithm algorithm = Algorithm.HMAC256(SecretKey);
-        
-        try{
+        Algorithm algorithm = Algorithm.HMAC256(secretKey);
+
+
+        try {
             var tokenDecoded = JWT.require(algorithm)
-            .build()
-            .verify(token);
+                .build()
+                .verify(token);
             return tokenDecoded;
-        }catch(JWTVerificationException ex){
-            ex.printStackTrace();
+        } catch (JWTVerificationException e) {
+            e.printStackTrace();
             return null;
         }
     }
