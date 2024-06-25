@@ -1,6 +1,5 @@
 package br.com.ogabrielfelipe.gestao_vagas.modules.company.controllers;
 
-import br.com.ogabrielfelipe.gestao_vagas.modules.candidate.CandidateEntity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

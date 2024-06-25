@@ -1,4 +1,4 @@
-package br.com.ogabrielfelipe.gestao_vagas.modules.candidate;
+package br.com.ogabrielfelipe.gestao_vagas.modules.candidate.Entity;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

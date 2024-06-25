@@ -1,6 +1,10 @@
 package br.com.ogabrielfelipe.gestao_vagas.modules.candidate.controllers;
 
+import br.com.ogabrielfelipe.gestao_vagas.exceptions.JobNotFoundException;
+import br.com.ogabrielfelipe.gestao_vagas.exceptions.UserNotFoundException;
+import br.com.ogabrielfelipe.gestao_vagas.modules.candidate.Entity.ApplyJobEntity;
 import br.com.ogabrielfelipe.gestao_vagas.modules.candidate.dto.ProfileCandidateResponseDTO;
+import br.com.ogabrielfelipe.gestao_vagas.modules.candidate.useCases.ApplyJobCandidateUseCase;
 import br.com.ogabrielfelipe.gestao_vagas.modules.candidate.useCases.ListAllJobsByFilterUseCase;
 import br.com.ogabrielfelipe.gestao_vagas.modules.company.entities.JobEntity;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,9 +15,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.*;
 
-import br.com.ogabrielfelipe.gestao_vagas.modules.candidate.CandidateEntity;
+import br.com.ogabrielfelipe.gestao_vagas.modules.candidate.Entity.CandidateEntity;
 import br.com.ogabrielfelipe.gestao_vagas.modules.candidate.useCases.CreateCandidateUseCase;
 import br.com.ogabrielfelipe.gestao_vagas.modules.candidate.useCases.ProfileCandidateUseCase;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,6 +45,9 @@ public class CandidateController {
 
      @Autowired
      private ListAllJobsByFilterUseCase listAllJobsByFilterUseCase;
+
+     @Autowired
+     private ApplyJobCandidateUseCase applyJobCandidateUseCase;
 
      @PostMapping("")
      @Operation(summary = "Cadastro de candidato",
@@ -94,6 +103,28 @@ public class CandidateController {
      // ------------
      public List<JobEntity> findJobByFilter(@RequestParam String filter){
           return this.listAllJobsByFilterUseCase.execute(filter);
+     }
+
+     @PostMapping("/job/apply")
+     @PreAuthorize("hasRole('CANDIDATE')")
+     @Operation(summary = "Aplicar candidatura a uma vaga", description = "Esse endpoint é responsável por realizar" +
+             "a candidatura de um candidato a vaga selecionada.")
+     @ApiResponses({
+             @ApiResponse(responseCode = "200", content = {
+                     @Content(array = @ArraySchema(schema = @Schema(implementation = ApplyJobEntity.class)))
+             }),
+             @ApiResponse(responseCode = "404", description = "User not found. \n Job not found.")
+
+     })
+     @SecurityRequirement(name = "jwt_auth")
+     public ResponseEntity<Object> ApplyJob(HttpServletRequest request, @RequestBody UUID idJob){
+          var candidateId = request.getAttribute("candidate_id");
+          try {
+               var result = this.applyJobCandidateUseCase.execute(UUID.fromString(candidateId.toString()) , idJob);
+               return ResponseEntity.ok().body(result);
+          }catch (UserNotFoundException | JobNotFoundException objectNotFound){
+               return ResponseEntity.status(HttpStatus.NOT_FOUND).body(objectNotFound.getMessage());
+          }
      }
 
 }
