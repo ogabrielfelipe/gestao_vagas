@@ -9,7 +9,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 @Service
-public class JWTProvider {  
+public class JWTCompanyProvider {
     
     @Value("${security.token.secret.company}")
     private String SecretKey;
@@ -26,7 +26,6 @@ public class JWTProvider {
             .verify(token);
             return tokenDecoded;
         }catch(JWTVerificationException ex){
-            ex.printStackTrace();
             return null;
         }
     }
