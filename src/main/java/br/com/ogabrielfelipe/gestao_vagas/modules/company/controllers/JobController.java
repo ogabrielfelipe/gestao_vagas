@@ -1,13 +1,13 @@
 package br.com.ogabrielfelipe.gestao_vagas.modules.company.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -45,17 +45,22 @@ public class JobController {
     })
     @SecurityRequirement(name = "jwt_auth")
     // ------------
-    public JobEntity create(@Valid @RequestBody CreateJobDTO createJobDTO, HttpServletRequest request) {
+    public ResponseEntity<Object> create(@Valid @RequestBody CreateJobDTO createJobDTO, HttpServletRequest request) {
         var companyId = request.getAttribute("company_id");
-        
-        var jobEntity = JobEntity.builder()
-            .benefits(createJobDTO.getBenefits())
-            .description(createJobDTO.getDescription())
-            .level(createJobDTO.getLevel())
-            .companyId(UUID.fromString(companyId.toString()))
-            .build();
 
-        return this.createJobUseCase.execute(jobEntity);
+        try {
+            var jobEntity = JobEntity.builder()
+                    .benefits(createJobDTO.getBenefits())
+                    .description(createJobDTO.getDescription())
+                    .level(createJobDTO.getLevel())
+                    .companyId(UUID.fromString(companyId.toString()))
+                    .build();
+
+            var result = this.createJobUseCase.execute(jobEntity);
+            return ResponseEntity.ok().body(result);
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
     
 }
